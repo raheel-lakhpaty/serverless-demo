@@ -1,0 +1,17 @@
+environmentTag: production
+cronSwitch: false
+cfnRole: arn:aws:iam::101900326756:role/LambdaFormationRole
+vpcEndpointIds:
+  # com.amazonaws.ap-southeast-1.execute-api
+  - vpce-0bedf89936532ab70
+# xv-iat-services-vpc-production
+sourceVpc: vpc-003c5f5bb643dc984
+vpc:
+  securityGroupIds:
+    # xv-iat-serverless-apigw-sg-production
+    - sg-0c413d07b1268ee0c
+  subnetIds:
+    # xv-iat-services-vpc-production-private-ap-southeast-1a
+    - subnet-0fcc8a32c765212e2
+    # xv-iat-services-vpc-production-private-ap-southeast-1b
+    - subnet-025c6fe88708a7af2

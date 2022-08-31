@@ -1,0 +1,17 @@
+environmentTag: local
+cronSwitch: false
+cfnRole: arn:aws:iam::448784306907:role/LambdaFormationRole
+vpcEndpointIds:
+  # com.amazonaws.ap-southeast-1.execute-api dev
+  - vpce-0174d7a5c257588fc
+# services-vpc-development
+sourceVpc: vpc-04f8bbfe527a1cc1d
+vpc:
+  securityGroupIds:
+    # serverless-apigw-sg-development
+    - sg-0c9eb65d5b3770659
+  subnetIds:
+    # services-vpc-development-private-ap-southeast-1a
+    - subnet-07dd14a559d12c633
+    # services-vpc-development-private-ap-southeast-1b
+    - subnet-0719c0aaa2bf719be
