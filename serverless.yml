@@ -1,0 +1,121 @@
+service: abnb-serverless-framework-demo
+
+params:
+  default: ${file(./config/${sls:stage}.yml)}
+  prod:    ${file(./config/${sls:stage}.yml)}
+  dev:     ${file(./config/${sls:stage}.yml)}
+
+custom:
+  pythonRequirements:
+    layer: true
+  table_name: ${self:service}
+
+frameworkVersion: '3'
+configValidationMode: error
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: ap-southeast-1
+  vpc: ${param:vpc}
+  stackTags:
+    Env: ${param:environmentTag}
+    Project: ${self:service}
+  environment:
+    ENV: ${param:environmentTag}
+    AWS_LOCATION: ap-southeast-1
+
+  cfnRole: ${param:cfnRole}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:UpdateItem
+      Resource:
+        - Fn::GetAtt:
+          - ServerlessDemoTable
+          - Arn
+    - Effect: Allow
+      Action: secretsmanager:GetSecretValue
+      Resource: !Sub arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${self:service}*
+
+resources:
+  Resources:
+    ServerlessDemoTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName:  ${self:custom.table_name}
+        AttributeDefinitions:
+          - AttributeName: onep_object
+            AttributeType: S
+        KeySchema:
+          - AttributeName: onep_object
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        Tags:
+          - Key: Env
+            Value: ${param:environmentTag}
+          - Key: Project
+            Value: ${self:service}
+          - Key: Provisioned_by
+            Value: automation
+
+# https://www.serverless.com/framework/docs/providers/aws/guide/layers
+layers:
+  onePassword:
+    name: ${self:service}-${sls:stage}-1password
+    description: Adds 1Password CLI support
+    compatibleArchitectures:
+      - arm64
+    package:
+      artifact: layers/1password/op_linux_arm64_v2.5.1.zip
+
+functions:
+    user_get:
+      handler: endpoints/users.get
+      events:
+        - http: get /{role}/Users/{id}
+      layers:
+        - { Ref: PythonRequirementsLambdaLayer }
+    # onepassword_to_splunk_techwarn:
+  #   handler: main.one_password_to_splunk
+  #   layers:
+  #     - Ref: PythonRequirementsLambdaLayer
+  #     - Ref: OnePasswordLambdaLayer
+  #   events:
+  #     - schedule:
+  #         rate: rate(15 minutes)
+  #         enabled: ${param:cronSwitch}
+  #         input:
+  #           secrets_name: "${self:service}"
+  #           table_name: "${self:custom.table_name}"
+
+  # onepassword_to_splunk_polymoon:
+  #   handler: main.one_password_to_splunk
+  #   layers:
+  #     - Ref: PythonRequirementsLambdaLayer
+  #     - Ref: OnePasswordLambdaLayer
+  #   events:
+  #     - schedule:
+  #         rate: rate(15 minutes)
+  #         enabled: ${param:cronSwitch}
+  #         input:
+  #             secrets_name: "${self:service}-polymoon"
+  #             table_name": "${self:custom.table_name}"
+
+package:
+  exclude:
+    - tests/**
+    - .github/**
+    - src/**
+    - node_modules/**
+    - README.md
+    - package*.*
+    - ~/.cache/pypoetry/**
+
+plugins:
+  - serverless-python-requirements
+  - serverless-offline
+  - serverless-dynamodb-local

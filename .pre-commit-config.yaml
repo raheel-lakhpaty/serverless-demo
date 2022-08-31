@@ -1,0 +1,85 @@
+exclude: Pipfile\.lock
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+  # basic hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.1.0
+    hooks:
+      - id: check-merge-conflict
+      - id: check-json
+      - id: debug-statements
+      - id: end-of-file-fixer
+        exclude: ^docs/.*$|.*\.iml$
+      - id: pretty-format-json
+        args:
+          - --autofix
+      - id: trailing-whitespace
+        exclude: README.md|.*\.iml$
+
+  # hooks to fix syntaxes
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.6.1
+    hooks:
+      - id: pyupgrade
+        args:
+          - --py38-plus
+
+  # hooks to autoformat code
+  - repo: local
+    hooks:
+      - id: black
+        name: black
+        entry: poetry run black
+        language: system
+        files: \.py$
+        # Only apply black to files that's staged
+        pass_filenames: true
+        always_run: false
+
+  # hooks to autosort imports
+  - repo: local
+    hooks:
+      - id: isort
+        name: isort
+        entry: poetry run isort
+        language: system
+        files: \.py$
+        # Only apply isort to files that's staged
+        pass_filenames: true
+        always_run: false
+
+  # hooks to run pylint
+  - repo: local
+    hooks:
+      - id: pylint
+        name: pylint
+        entry: poetry run pylint
+        language: system
+        files: \.py$
+        # Only lint files that's staged
+        pass_filenames: true
+        always_run: false
+
+  # # hooks to run pyright
+  # - repo: local
+  #   hooks:
+  #     - id: pyright
+  #       name: pyright
+  #       entry: poetry run npx pyright
+  #       language: system
+  #       files: \.py$
+  #       # Only lint files that's staged
+  #       pass_filenames: true
+  #       always_run: false
+
+  # hook to run pytest
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest
+        entry: poetry run pytest
+        language: system
+        # pytest should always run all the tests
+        pass_filenames: false
+        always_run: true

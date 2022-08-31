@@ -1,0 +1,17 @@
+environmentTag: development
+cronSwitch: false
+cfnRole: arn:aws:iam::448784306907:role/LambdaFormationRole
+vpcEndpointIds:
+  # com.amazonaws.ap-southeast-1.execute-api dev
+  - vpce-0174d7a5c257588fc
+# xv-iat-services-vpc-development
+sourceVpc: vpc-04f8bbfe527a1cc1d
+vpc:
+  securityGroupIds:
+    # xv-iat-serverless-apigw-sg-development
+    - sg-0c9eb65d5b3770659
+  subnetIds:
+    # xv-iat-services-vpc-development-private-ap-southeast-1a
+    - subnet-07dd14a559d12c633
+    # xv-iat-services-vpc-development-private-ap-southeast-1b
+    - subnet-0719c0aaa2bf719be
