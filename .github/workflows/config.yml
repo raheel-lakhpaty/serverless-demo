@@ -1,0 +1,26 @@
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+name: Deploy branch
+jobs:
+  checks:
+    uses: raheel-lakhpaty/serverless-demo/.github/workflows/python-lambda-checks.yml@main
+    with:
+      package_tool: poetry
+
+  deploy:
+    uses: raheel-lakhpaty/serverless-demo/.github/workflows/python-lambda-deploy.yml@main
+    needs: checks
+    with:
+      package_tool: poetry
+      dev_branch_name: develop
+      main_branch_name: main
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
